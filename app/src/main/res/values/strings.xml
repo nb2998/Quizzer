@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Quizzer</string>
+    <string name="welcome">Welcome</string>
+    <string name="server_client_id">409911426007-tj2at59rhtbjkm2ldvhjk1ga9uqj0eq2.apps.googleusercontent.com</string>
+    <string name="category_mathematics">Mathematics</string>
+    <string name="category_science">Science and Nature</string>
+    <string name="category_history">History</string>
+    <string name="category_geography">Geography</string>
+</resources>

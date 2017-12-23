@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "409911426007",
+    "project_id": "quizzer-99f94"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409911426007:android:146c75a336141b25",
+        "android_client_info": {
+          "package_name": "com.apps.nishtha.quizzer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "409911426007-tj2at59rhtbjkm2ldvhjk1ga9uqj0eq2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.nishtha.quizzer",
+            "certificate_hash": "4f617947bedd6ac8463e0d2cde6996d0b5485fdb"
+          }
+        },
+        {
+          "client_id": "409911426007-ppaj1vnnqf8orm79lmtk4bu2g8ga479l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ5imJm1tcUb0Rdfse-HTcjrBdGb_-V0U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
