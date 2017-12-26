@@ -6,4 +6,7 @@
     <string name="category_science">Science and Nature</string>
     <string name="category_history">History</string>
     <string name="category_geography">Geography</string>
+    <string name="start_quiz">Start Quiz</string>
+    <string name="quit_message">Are you sure you want to quit?</string>
+    <string name="no_partial_points_message">Points will not be added for this quiz!</string>
 </resources>

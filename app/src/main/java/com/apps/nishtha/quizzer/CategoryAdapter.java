@@ -1,21 +1,34 @@
 package com.apps.nishtha.quizzer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by nishtha on 23/12/17.
  */
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryHolder> {
+    private static final String TAG = "TAG";
     Context context;
     ArrayList<Category> categoryArrayList;
 
@@ -30,9 +43,17 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     }
 
     @Override
-    public void onBindViewHolder(CategoryHolder holder, int position) {
+    public void onBindViewHolder(CategoryHolder holder, final int position) {
         if(categoryArrayList!=null){
             holder.tvCategoryName.setText(categoryArrayList.get(position).getName());
+            holder.cardCategory.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                    GetQuestionsAsyncTask getQuestionsAsyncTask=new GetQuestionsAsyncTask();
+//                    getQuestionsAsyncTask.execute(position);
+                    getQuestions(position);
+                }
+            });
         }
     }
 
@@ -52,4 +73,70 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             cardCategory=itemView.findViewById(R.id.cardCategory);
         }
     }
+
+    private void getQuestions(Integer category) {
+        final ArrayList<QnA> qnAArrayList=new ArrayList<>();
+        String baseUrl="https://cocktail-trivia-api.herokuapp.com/api/category/";
+        StringBuilder url=new StringBuilder(baseUrl);
+        switch(category){
+            case 0: //Mathematics
+                url.append("science-mathematics");
+                break;
+
+            case 1: //Science and nature
+                url.append("science-nature");
+                break;
+
+            case 2:  //History
+                url.append("history");
+                break;
+
+            case 3:  //Geography
+                url.append("geography");
+                break;
+
+            default:
+                Log.d(TAG, "getQuestions: no category");
+        }
+        Log.d(TAG, "getQuestions: url : "+url);
+
+        OkHttpClient okHttpClient=new OkHttpClient();
+        Request request=new Request.Builder()
+                .url(url.toString())
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "onFailure: failed "+e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final Gson gson=new Gson();
+                QnA[] qnas=gson.fromJson(response.body().string(),QnA[].class);
+                qnAArrayList.addAll(Arrays.asList(qnas));
+                Log.d(TAG, "onResponse: item added, size now "+qnAArrayList.size());
+//                generateRandomQuestion(qnAArrayList);
+                Intent intent=new Intent(context, QuestionActivity.class);
+//                Bundle bundle=new Bundle();
+//                bundle.putSerializable("question",qnAArrayList);
+//                intent.putExtras(bundle);
+                intent.putExtra("qna", qnAArrayList);
+                context.startActivity(intent);
+            }
+        });
+    }
+
+//    private void generateRandomQuestion(ArrayList<QnA> qnAArrayList){
+//        Random random=new Random();
+////        Log.d(TAG, "onPostExecute: "+random.nextInt(5));
+//        Log.d(TAG, "onPostExecute: "+qnAArrayList.size());
+//        QnA qnA=qnAArrayList.get(random.nextInt(qnAArrayList.size()));
+//        Log.d(TAG, "onPostExecute: " +qnA.getText());
+//
+//        Intent intent=new Intent(context, InstructionsActivity.class);
+//        intent.putExtra("question",qnA.getText());
+//
+//        context.startActivity(intent);
+//    }
 }
