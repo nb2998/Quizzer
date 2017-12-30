@@ -15,19 +15,20 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class QuestionActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "TAG";
-    TextView tvQuestion, tvPoints;
+    TextView tvQuestion, tvPoints, tvCountdown;
     Button[] btnOptions=new Button[4];
     Integer[] btnOptionIds={R.id.btnOption1,R.id.btnOption2,R.id.btnOption3,R.id.btnOption4};
     int correctAnsPos=0;
     ProgressBar progressBar;
     ArrayList<QnA> qnAArrayList;
     int countOfQues=0;
-    MyTimer myTimer=new MyTimer(10000,1000);
-    int points=0;  
+    CountDownTimer myTimer=new MyTimer(10000,1000);
+    int points=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +36,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
 
         tvQuestion=findViewById(R.id.tvQuestion);
         tvPoints=findViewById(R.id.tvPoints);
+        tvCountdown=findViewById(R.id.tvCountdown);
 
         for(int i=0;i<=3;i++){
             btnOptions[i]=findViewById(btnOptionIds[i]);
@@ -43,15 +45,31 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         progressBar=findViewById(R.id.progressbar);
         progressBar.setProgress(100);
 
-
-        try{
-            qnAArrayList = (ArrayList<QnA>) getIntent().getSerializableExtra("qna");
-            if(countOfQues<10) {
-                generateRandomQuestion(qnAArrayList);
+        final Handler handler=new Handler();
+        final AtomicInteger atomicInteger=new AtomicInteger(3);
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                tvCountdown.bringToFront();
+                tvCountdown.setText(Integer.toString(atomicInteger.get()));
+                if(atomicInteger.getAndDecrement()>=1){
+                    handler.postDelayed(this,1000);
+                }else{
+                    tvCountdown.setVisibility(View.GONE);
+                    try{
+                        qnAArrayList = (ArrayList<QnA>) getIntent().getSerializableExtra("qna");
+                        if(countOfQues<10) {
+                            generateRandomQuestion(qnAArrayList);
+                        }
+                    }catch(Exception e){
+                        Log.e(TAG, "onCreate: question act "+e.getLocalizedMessage() );
+                    }
+                }
             }
-        }catch(Exception e){
-            Log.e(TAG, "onCreate: question act "+e.getLocalizedMessage() );
-        }
+        };
+        runnable.run();
+
+
 
     }
 
@@ -101,6 +119,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                 .setPositiveButton("Yes, Quit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        myTimer.cancel();
                         finish();
                     }
                 })
@@ -133,7 +152,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                             public void run() {
                                  generateRandomQuestion(qnAArrayList);
                             }
-                        },5000);
+                        },3000);
                     }
                 } else{
                     btnOptions[i].setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
@@ -149,7 +168,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                             public void run() {
                                 generateRandomQuestion(qnAArrayList);
                             }
-                        },5000);
+                        },3000);
                     }
                 }
 
@@ -175,17 +194,21 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         }
 
         @Override
-        public void onFinish() { // TODO: 26/12/17 time's up bug- question no 1->3->7 stops 
+        public void onFinish() { // TODO: 26/12/17 bug solved but correct answer to be shown
             Toast.makeText(QuestionActivity.this,"Time's up!",Toast.LENGTH_SHORT).show();
             btnOptions[correctAnsPos].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
             if(countOfQues<5 &&qnAArrayList!=null){
-                Handler handler=new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        generateRandomQuestion(qnAArrayList);
-                    }
-                },5000);
+//                Handler handler=new Handler();
+//                Runnable runnable=new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d(TAG, "run: inside run timer on finish ");
+//                        generateRandomQuestion(qnAArrayList);
+//                    }
+//                };
+//                Log.d(TAG, "onFinish: outside onFInish");
+//                handler.postDelayed(runnable,3000);
+                generateRandomQuestion(qnAArrayList);
             }
         }
     }
