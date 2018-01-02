@@ -32,4 +32,9 @@ public class MainActivity extends AppCompatActivity {
         categoryArrayList.add(new Category(getString(R.string.category_geography)));
         categoryAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true); //avoids transition from mainActivity to SignInActivity
+    }
 }
