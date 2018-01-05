@@ -1,5 +1,6 @@
 package com.apps.nishtha.quizzer;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
@@ -31,10 +32,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private static final String TAG = "TAG";
     Context context;
     ArrayList<Category> categoryArrayList;
+    ProgressDialog progressDialog;
 
     public CategoryAdapter(Context context, ArrayList<Category> categoryArrayList) {
         this.context = context;
         this.categoryArrayList = categoryArrayList;
+        progressDialog=new ProgressDialog(context);
+        progressDialog.setMessage(context.getResources().getString(R.string.loading));
+        progressDialog.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -49,8 +54,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             holder.cardCategory.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    GetQuestionsAsyncTask getQuestionsAsyncTask=new GetQuestionsAsyncTask();
-//                    getQuestionsAsyncTask.execute(position);
+                    progressDialog.show();
                     getQuestions(position);
                 }
             });
@@ -108,6 +112,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onFailure: failed "+e.getLocalizedMessage());
+                progressDialog.dismiss();
             }
 
             @Override
@@ -117,6 +122,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 qnAArrayList.addAll(Arrays.asList(qnas));
                 Log.d(TAG, "onResponse: item added, size now "+qnAArrayList.size());
 //                generateRandomQuestion(qnAArrayList);
+                progressDialog.dismiss();
                 Intent intent=new Intent(context, QuestionActivity.class);
 //                Bundle bundle=new Bundle();
 //                bundle.putSerializable("question",qnAArrayList);
@@ -126,17 +132,4 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
             }
         });
     }
-
-//    private void generateRandomQuestion(ArrayList<QnA> qnAArrayList){
-//        Random random=new Random();
-////        Log.d(TAG, "onPostExecute: "+random.nextInt(5));
-//        Log.d(TAG, "onPostExecute: "+qnAArrayList.size());
-//        QnA qnA=qnAArrayList.get(random.nextInt(qnAArrayList.size()));
-//        Log.d(TAG, "onPostExecute: " +qnA.getText());
-//
-//        Intent intent=new Intent(context, InstructionsActivity.class);
-//        intent.putExtra("question",qnA.getText());
-//
-//        context.startActivity(intent);
-//    }
 }
