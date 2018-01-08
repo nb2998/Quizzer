@@ -20,9 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class QuestionActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final int totalQues=10;
+    public static final int totalCategories=4;
     private static final String TAG = "TAG";
     TextView tvQuestion, tvPoints, tvCountdown;
-    Button[] btnOptions = new Button[4];
+    Button[] btnOptions = new Button[totalCategories];
     Integer[] btnOptionIds = {R.id.btnOption1, R.id.btnOption2, R.id.btnOption3, R.id.btnOption4};
     int correctAnsPos = 0;
     ProgressBar progressBar;
@@ -36,17 +38,39 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
 
+        AlertDialog alertDialog=new AlertDialog.Builder(this)
+                .setTitle(R.string.ready)
+                .setMessage(R.string.instructions)
+                .setNegativeButton(R.string.alert_go_back
+
+                        , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setPositiveButton(R.string.alert_start, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startGame();
+                    }
+                })
+                .create();
+        alertDialog.show();
+
         tvQuestion = findViewById(R.id.tvQuestion);
         tvPoints = findViewById(R.id.tvPoints);
         tvCountdown = findViewById(R.id.tvCountdown);
 
-        for (int i = 0; i <= 3; i++) {
+        for (int i = 0; i < totalCategories; i++) {
             btnOptions[i] = findViewById(btnOptionIds[i]);
             btnOptions[i].setOnClickListener(this);
         }
         progressBar = findViewById(R.id.progressbar);
         progressBar.setProgress(100);
+    }
 
+    private void startGame() {
         final Handler handler = new Handler();
         final AtomicInteger atomicInteger = new AtomicInteger(3);
         Runnable runnable = new Runnable() {
@@ -60,7 +84,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                     tvCountdown.setVisibility(View.GONE);
                     try {
                         qnAArrayList = (ArrayList<QnA>) getIntent().getSerializableExtra("qna");
-                        if (countOfQues < 10) {
+                        if (countOfQues < totalQues) {
                             generateRandomQuestion(qnAArrayList);
                         }
                     } catch (Exception e) {
@@ -70,8 +94,6 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
             }
         };
         runnable.run();
-
-
     }
 
     private void generateRandomQuestion(ArrayList<QnA> qnAArrayList) {
@@ -92,7 +114,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         progressBar.setProgress(100);
         myTimer.start();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < totalCategories; i++) {
             btnOptions[i].setClickable(true);
             btnOptions[i].setBackgroundResource(android.R.drawable.btn_default);
         }
@@ -102,7 +124,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         myTimer.start();
         tvQuestion.setText("Question " + countOfQues + ": " + qnA.getText());
         if (qnA.getAnswers().size() > 3) {
-            for (int i = 0; i <= 3; i++) {
+            for (int i = 0; i < totalCategories; i++) {
                 btnOptions[i].setText(String.valueOf(i + 1) + ". " + qnA.getAnswers().get(i).getText());
                 if (qnA.getAnswers().get(i).getCorrect().equals("true")) {
                     correctAnsPos = i;
@@ -137,7 +159,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View view) {
-        for (int i = 0; i <= 3; i++) {
+        for (int i = 0; i < totalCategories; i++) {
             if (view.getId() == btnOptionIds[i]) {
                 myTimer.cancel();
                 if (i == correctAnsPos) {
@@ -162,7 +184,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void makeOtherButtonsUnclickable() {
-        for (int i = 0; i <= 3; i++) {
+        for (int i = 0; i < totalCategories; i++) {
             btnOptions[i].setClickable(false);
         }
     }
@@ -182,7 +204,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         public void onFinish() { // TODO: 26/12/17 bug solved but correct answer to be shown
             Toast.makeText(QuestionActivity.this, "Time's up!", Toast.LENGTH_SHORT).show();
             btnOptions[correctAnsPos].setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-            if (countOfQues < 5 && qnAArrayList != null) {
+            if (countOfQues < totalQues && qnAArrayList != null) {
 //                Handler handler=new Handler();
 //                Runnable runnable=new Runnable() {
 //                    @Override
@@ -194,7 +216,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
 //                Log.d(TAG, "onFinish: outside onFInish");
 //                handler.postDelayed(runnable,3000);
                 generateRandomQuestion(qnAArrayList);
-            } else if (countOfQues == 5) {
+            } else if (countOfQues == totalQues) {
                 // TODO: 5/1/18 Display result
                 Intent intent=new Intent(QuestionActivity.this,ResultActivity.class);
                 intent.putExtra("scoreResult",points);
@@ -205,7 +227,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void generateQuesOrResult() {
-        if(countOfQues==5){
+        if(countOfQues==totalQues){
             // TODO: 5/1/18 Display result
             Intent intent=new Intent(QuestionActivity.this,ResultActivity.class);
             intent.putExtra("scoreResult",points);
@@ -214,7 +236,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
             startActivity(intent);
 
         }
-        if(countOfQues<5 &&qnAArrayList!=null){
+        if(countOfQues<totalQues &&qnAArrayList!=null){
             Handler handler=new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
